@@ -1,5 +1,5 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
+# Copyright 2016, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Prepare the user ssh keys
-- include: test-prepare-keys.yml
-
-# Prepare the host
-- include: test-prepare-host.yml
-
-# Run container clean up
-- include: test-prepare-containers.yml
-
-# Run the role
-- include: test-install.yml
-
-# Run functional tests
-- include: test-functional.yml
+- name: Functional test run
+  hosts: all_containers
+  user: root
+  gather_facts: false
+  pre_tasks:
+    - debug:
+        msg: "{{ message }}"
+  roles:
+    - role: "{{ rolename | basename }}"
+  post_tasks:
+    - name: Wait for ssh to be available
+      local_action:
+        module: wait_for
+        port: "{{ ansible_ssh_port | default('22') }}"
+        host: "{{ ansible_ssh_host | default(inventory_hostname) }}"
+        search_regex: OpenSSH
+        delay: 1
+  vars_files:
+    - test-vars.yml

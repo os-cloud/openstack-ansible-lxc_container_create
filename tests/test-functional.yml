@@ -1,0 +1,33 @@
+---
+# Copyright 2016, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Playbook for role testing
+  hosts: all_containers
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Confirm containers were created
+      command: lxc-ls -f
+      register: lxc_containers
+    - name: Format output
+      set_fact:
+        _lxc_output: "{{ lxc_containers.stdout.split() | lower }}"
+    - set_fact:
+        lxc_output: "{{ _lxc_output | join(' ') }}"
+    - name: Check role functions
+      assert:
+        that:
+          - "'container1 running 10.100.100.101' in lxc_output"
+          - "'container2 running 10.100.100.102' in lxc_output"

@@ -1,2 +1,11 @@
 [all]
-localhost ansible_connection=local physical_host=localhost ansible_become=True
+localhost ansible_connection=local ansible_become=True
+container1 ansible_ssh_host=10.100.100.101 ansible_host=10.100.100.101 ansible_become=True ansible_user=root
+container2 ansible_ssh_host=10.100.100.102 ansible_host=10.100.100.102 ansible_become=True ansible_user=root
+
+[containers]
+container1
+container2
+
+[all_containers:children]
+containers
